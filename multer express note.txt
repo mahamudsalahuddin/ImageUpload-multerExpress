@@ -1,0 +1,161 @@
+create folder as uploadImageNode
+in terminal npm init -y
+create index.js
+in package.json>
+ "scripts": {
+    "start": "nodemon index.js",//write this
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+
+npm install express nodemon
+
+in index.js>
+const express = require("express");
+const app = express();
+app.get("/", function (req, res) {
+  res.send("Hello world1");
+});
+app.listen(8000);
+
+in terminal>
+npm start
+and go to browser and serch: http://localhost:8000/
+
+$ npm install --save multer
+
+
+--------------
+//link: http://expressjs.com/en/resources/middleware/multer.html
+const express = require("express");
+const multer = require("multer");
+const app = express();
+const upload = multer({ dest: "uploads/" });
+
+app.post("/", upload.single("avatar"), function (req, res, next) {
+  console.log("done");
+});
+
+app.listen(8000);
+
+------------------
+in thunder client > GET: http://localhost:8000/
+body> tick on file name: avatar and upload image>
+then send
+then an image upoad in uploads folder without extension.
+
+
+---------------
+
+const express = require("express");
+const multer = require("multer");
+const app = express();
+
+const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, "uploads/");
+  },
+  filename: function (req, file, cb) {
+    const uniqueSuffix = Date.now() + "-" + Math.round(Math.random() * 1e9);
+    cb(null, Date.now() +"-"+ file.originalname);
+    console.log(Date.now() +"-"+ file.originalname);
+  },
+});
+
+const upload = multer({ storage: storage });
+
+app.post("/", upload.single("avatar"), function (req, res, next) {
+  console.log("done");
+});
+
+app.listen(8000);
+----------------------
+then test on thunder climt using image or any other file. it will upload in uploads folder
+----------------------
+
+
+to search in search engine:
+------------------------------
+//link: https://expressjs.com/en/starter/static-files.html
+
+const express = require("express");
+const multer = require("multer");
+const path = require("path");
+const app = express();
+app.use("/uploads/", express.static(path.join(__dirname, "./uploads")));
+
+const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, "uploads/");
+  },
+  filename: function (req, file, cb) {
+    const uniqueSuffix = Date.now() + "-" + Math.round(Math.random() * 1e9);
+    cb(null, Date.now() + "-" + file.originalname);
+    console.log(Date.now() + "-" + file.originalname);
+  },
+});
+
+const upload = multer({ storage: storage });
+
+app.post("/", upload.single("avatar"), function (req, res, next) {
+  console.log("done");
+});
+
+app.listen(8000);
+
+--------------------------------------
+search on serch engine: http://localhost:8000/uploads/sallu.png
+
+
+-------------------------------
+for multiple image upload
+---------------
+const express = require("express");
+const multer = require("multer");
+const path = require("path");
+const app = express();
+app.use("/uploads/", express.static(path.join(__dirname, "./uploads")));
+
+const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, "uploads/");
+  },
+  filename: function (req, file, cb) {
+    cb(null, Date.now() + "-" + file.originalname);
+  },
+});
+
+const upload = multer({ storage: storage });
+
+app.post("/", upload.array("avatar", 12), function (req, res, next) {
+//12 means maximum 12 images
+  console.log("done");
+});
+
+app.listen(8000);
+
+
+--------------------------------------------------
+// =================Another way for multiple image upload=================
+
+const express = require("express");
+const multer = require("multer");
+const path = require("path");
+const app = express();
+app.use("/uploads/", express.static(path.join(__dirname, "./uploads")));
+// DiskStorage : The disk storage engine gives you full control on storing files to disk.
+const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, "uploads/");
+  },
+  filename: function (req, file, cb) {
+    cb(null, Date.now() + "-" + file.originalname);
+  },
+});
+const upload = multer({ storage: storage });
+const cpUpload = upload.fields([{ name: 'avatar', maxCount: 1 }, { name: 'avatar', maxCount: 8 }])
+app.post('/', cpUpload, function (req, res, next) {
+  console.log("done");
+})
+
+app.listen(8000);
+
